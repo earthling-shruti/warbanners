@@ -9,46 +9,54 @@
                 "location": {"x": 3, "y": 3}
             }
         ],
-        "cities": [
-            {
-                "id": "x4y2",
+        "cities": {
+            "x4y2": {
                 "gold": 50,
-                "player": "Jon Snow",
+                "player": "jonsnow",
                 "location": {"x": 3, "y": 2}
+            },
+            "blahblah": {
+                "gold": 50,
+                "player": "jonsnow",
+                "location": {"x": 3, "y": 1}
             }
-        ],
-        "houses": [
-            {
+        },
+        "houses": {
+            "baratheon": {
                 "name": "Baratheon",
-                "allegiances": ["Lannister"]
+                "allegiances": ["lannister"]
             },
-            {
+            "lannister": {
+                "name": "Lannister",
+                "allegiances": ["baratheon"]
+            },
+            "arryn": {
                 "name": "Arryn",
-                "allegiances": ["Baratheon"]
+                "allegiances": ["baratheon"]
             },
-            {
+            "stark": {
                 "name": "Stark",
                 "allegiances": []
             }
-        ],
-        "players": [
-            {
-                "house": false,
-                "name": "Jon Snow"
+        },
+        "players": {
+            "jonsnow": {
+                "name": "Jon Snow",
+                "house": false
             },
-            {
-                "house": "Baratheon",
-                "name": "Roy"
+            "roy": {
+                "name": "Roy Batty",
+                "house": "baratheon"
             },
-            {
-                "house": "Tyrell",
-                "name": "Mace"
+            "mace": {
+                "name": "Mace Tyrell",
+                "house": "tyrell"
             },
-            {
-                "house": false,
-                "name": "Leon"
+            "leon": {
+                "name": "Leon",
+                "house": "lannister"
             }
-        ],
+        },
         "tiles": [
             [2, 2, 2, 1, 1, 5, 5, 1, 1, 1, 1, 6],
             [2, 2, 1, 1, 5, 5, 1, 1, 1, 1, 6, 6],

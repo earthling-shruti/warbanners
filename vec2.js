@@ -3,4 +3,6 @@ define(function () {
 		this.x = x;
 		this.y = y;
 	}
+
+	return Vec2;
 });

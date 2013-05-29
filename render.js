@@ -1,4 +1,4 @@
-define(function () {
+define(["underscore"], function (_) {
     "use strict";
 
     var tileMap = [
@@ -26,11 +26,41 @@ define(function () {
     function Render(context) {
         this.context = context;
         this.canvas = context.canvas;
-        context.scale(50, 50);
+        context.scale(75, 75);
     }
 
     Render.prototype.draw = function (state) {
+        var context = this.context;
+
+        // draw tiles
         this.tiles(state.tiles);
+
+        // draw cities
+        _.each(state.cities, function (city, id, cities) {
+            var w = 1;
+            var h = Math.sqrt(3) / 2 * w;
+            var x = city.location.x;
+            var y = city.location.y;
+            var yt = x % 2 ? h * y + (h / 2) : h * y;
+            context.save();
+            context.translate(x - (w / 4), yt + (h / 2));
+            context.arc(0, 0, 0.25, 0, 360, true);
+            context.fill();
+            context.restore();
+        });
+
+        _.each(state.armies, function (army, i, armies) {
+            var w = 1;
+            var h = Math.sqrt(3) / 2 * w;
+            var x = army.location.x;
+            var y = army.location.y;
+            var yt = x % 2 ? h * y + (h / 2) : h * y;
+            context.save();
+            context.translate(x - (w / 2), yt);
+            context.fillRect(0, 0, 0.40, 0.40);
+            context.fill();
+            context.restore();
+        });
     };
 
     Render.prototype.tile = function (x, y, t) {

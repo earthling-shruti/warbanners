@@ -2,7 +2,8 @@ require.config({
     baseUrl: './',
     paths: {
         "jquery": "vendor/jquery.min",
-        "domReady": "https://raw.github.com/requirejs/domReady/latest/domReady"
+        "domReady": "vendor/domReady",
+        "underscore": "vendor/underscore-min"
     },
     shim: {
         "underscore": {
@@ -27,8 +28,8 @@ function ($, doc, Game, Renderer) {
     var context = document.getElementById("game").getContext("2d");
     var request = $.getJSON("state.json");
     var renderer = new Renderer(context);
-
     request.done(function (data) {
-        renderer.draw(data.state);
+        var game = Game.unmarshal(data);
+        renderer.draw(game);
     });
 });

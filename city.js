@@ -1,9 +1,8 @@
 define(["vec2"], function (Vec2) {
-	function City() {
-		this.house = null;
+	function City(player, x, y) {
 		this.gold = 0;
 		this.rate = 1;
-		this.position = new Vec2(0, 0);
+		this.location = new Vec2(x, y);
 	}
 
 	return City;

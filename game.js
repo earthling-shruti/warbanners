@@ -1,48 +1,97 @@
-define(["underscore", "house", "player", "city", "army", "vec2"],
-function (_, House, Player, City, Army, Vec2) {
-    function Game() {
-        this.cities = [];
-        this.tiles = [];
-        this.players = [];
-        this.houses = [];
-        this.armies = [];
+define(["underscore"], function (_) {
+    "use strict";
+
+    function Player(id, name, cities, house) {
+        this.id = id;
+        this.name = name;
+        this.cities = cities || [];
+        this.house = house;
     }
 
+    function Board(tiles) {
+        this.tiles = tiles;
+    }
+
+    Board.prototype.terrains = {
+        0: "Desert",
+        1: "Plains",
+        2: "Forest",
+        3: "Tundra",
+        4: "Arctic",
+        5: "Rivers",
+        6: "Mountain"
+    };
+
+    Board.prototype.costs = {
+        "Desert": 1,
+        "Plains": 1,
+        "Forest": 1,
+        "Tundra": 1,
+        "Arctic": 2,
+        "Rivers": Infinity
+    };
+
+    function House(id, name, allies) {
+        this.id = id;
+        this.name = name;
+        this.allies = allies || [];
+    }
+
+    function City(id, x, y, armies) {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.armies = armies || [];
+    }
+
+    function Army(id, x, y, city) {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.city = city;
+    }
+
+    function Game() {
+        this.players = [];
+        this.houses = [];
+        this.board = [];
+    }
+
+    // Unmarshal a raw JSON object into the various game types
     Game.unmarshal = function (data) {
-        var game = new Game();
+        var state = new Game(),
+            house,
+            player,
+            city,
+            army;
 
-        // houses
-        game.houses = data.state.houses;
-        _.each(game.houses, function (house, houseID, houses) {
-            houses[houseID] = new House(house.name, house.allegiances);
+        // Timestamp
+        state.timestamp = new Date(Date.parse(data.timestamp));
+
+        // Board
+        state.board = new Board(data.board);
+
+        // House
+        _.each(data.houses, function (h) {
+            house = new House(h.id, h.name, h.allies);
+            state.houses[house.id] = house;
         });
 
-        _.each(game.houses, function (house, houseID, houses) {
-            _.each(house.allegiances, function (houseID, i, allegiances) {
-                allegiances[i] = houses[houseID];
+        // Player, cities, and armies
+        _.each(data.players, function (p) {
+            player = new Player(p.id, p.name, p.cities, p.house);
+            _.each(p.cities, function (c) {
+                city = new City(c.id, c.x, c.y, c.armies);
+                _.each(c.armies, function (d) {
+                    army = new Army(d.id, d.x, d.y, c.id);
+                    city.armies[army.id] = army;
+                });
+                player.cities[city.id] = city;
             });
+            state.players[player.id] = player;
         });
 
-        // players
-        game.players = data.state.players;
-        _.each(game.players, function (player, id, players) {
-            players[id] = new Player(id, game.houses[player.house]);
-        });
-
-        // cities
-        game.cities = data.state.cities;
-        _.each(game.cities, function (city, id, cities) {
-            cities[id] = new City(game.players[city.player], city.location.x, city.location.y);
-        });
-
-        // armies
-        game.armies = data.state.armies;
-        _.each(game.armies, function (army, i, armies) {
-            armies[i] = new Army(game.cities[army.city], army.health, army.location)
-        });
-
-        game.tiles = data.state.tiles;
-        return game;
+        return state;
     };
 
     return Game;

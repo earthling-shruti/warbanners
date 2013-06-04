@@ -54,7 +54,7 @@ define(["underscore"], function (_) {
     function Game() {
         this.players = [];
         this.houses = [];
-        this.board = [];
+        this.board = new Board([]);
     }
 
     // Unmarshal a raw JSON object into the various game types

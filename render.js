@@ -1,7 +1,5 @@
-define(["underscore"], function (_) {
+define(["underscore", "vec2"], function (_, Vec2) {
     "use strict";
-
-    var scale = 100;
 
     var tileColors = {
         "Desert": "#FFEE00",
@@ -24,67 +22,83 @@ define(["underscore"], function (_) {
     function Render(context) {
         this.context = context;
         this.canvas = context.canvas;
-    }
+        this.position = new Vec2(0, 0);
+        this.scale = 50;
+    };
+
+    Render.prototype.toScale = function (i) {
+        return i / this.scale;
+    };
+
+    Render.prototype.toPx = function (i) {
+        return i * this.scale;
+    };
+
+    Render.prototype.paused = false;
 
     Render.prototype.draw = function (state) {
-        var ctx    = this.context,
-            board  = state.board,
-            tiles  = state.board.tiles,
-            cities = _.flatten(_.pluck(state.players, "cities")),
-            armies = _.flatten(_.pluck(cities, "armies")),
-            w = 1, h = Math.sqrt(3) / 2 * w,
-            yt, xt;
+        var self    = this,
+            context = this.context,
+            board   = state.board,
+            tiles   = state.board.tiles,
+            cities  = _.flatten(_.pluck(state.players, "cities")),
+            armies  = _.flatten(_.pluck(cities, "armies")),
+            w       = 1,
+            h       = Math.sqrt(3) / 2 * w;
 
-        // Global scale
-        ctx.scale(scale, scale);
-        ctx.translate(-0.5, -0.5);
+        context.save();
+        context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        context.scale(this.scale, this.scale);
+        context.translate(-this.position.x, -this.position.y);
 
         // Draw and tesselate them hexagons
         _.each(tiles, function (column, yp) {
             _.each(column, function (t, xp) {
-                ctx.save();
-                ctx.translate(x(xp, yp, w, h), y(xp, yp, w, h));
-                ctx.lineWidth = 1 / scale;
-                ctx.strokeStyle = "#111";
-                ctx.fillStyle = tileColors[board.terrains[t]];
+                context.save();
+                context.translate(x(xp, yp, w, h), y(xp, yp, w, h));
+                context.lineWidth = 1 / self.scale;
+                context.strokeStyle = "#111";
+                context.fillStyle = tileColors[board.terrains[t]];
 
-                ctx.beginPath();
-                ctx.moveTo(w * 0.25, h * 0.00);
-                ctx.lineTo(w * 0.75, h * 0.00);
-                ctx.lineTo(w * 1.00, h * 0.50);
-                ctx.lineTo(w * 0.75, h * 1);
-                ctx.lineTo(w * 0.25, h * 1);
-                ctx.lineTo(w * 0, h * 0.50);
-                ctx.closePath();
+                context.beginPath();
+                context.moveTo(w * 0.25, h * 0.00);
+                context.lineTo(w * 0.75, h * 0.00);
+                context.lineTo(w * 1.00, h * 0.50);
+                context.lineTo(w * 0.75, h * 1);
+                context.lineTo(w * 0.25, h * 1);
+                context.lineTo(w * 0, h * 0.50);
+                context.closePath();
 
-                ctx.fill();
-                ctx.stroke();
-                ctx.restore();
+                context.fill();
+                context.stroke();
+                context.restore();
             });
         });
 
         // Cities
         _.each(cities, function (city) {
-            ctx.save();
-            ctx.translate(
+            context.save();
+            context.translate(
                 x(city.x + 1, city.y, w, h) - 0.25,
                 y(city.x, city.y, w, h) + 0.43);
-            ctx.arc(0, 0, 0.25, 0, 360, true);
-            ctx.fillStyle = "royalBlue";
-            ctx.fill();
-            ctx.restore();
+            context.arc(0, 0, 0.25, 0, 360, true);
+            context.fillStyle = "royalBlue";
+            context.fill();
+            context.restore();
         });
 
         // Armies
         _.each(armies, function (army) {
-            ctx.save();
-            ctx.translate(
+            context.save();
+            context.translate(
                 x(army.x + 1, army.y, w, h) - 0.40,
                 y(army.x, army.y, w, h) + 0.25);
-            ctx.fillStyle = "#F22E18";
-            ctx.fillRect(0, 0, 0.35, 0.35);
-            ctx.restore();
+            context.fillStyle = "#F22E18";
+            context.fillRect(0, 0, 0.35, 0.35);
+            context.restore();
         });
+
+        context.restore();
     };
 
     return Render;

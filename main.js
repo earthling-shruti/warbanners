@@ -52,7 +52,7 @@ function ($, doc, _, Game, Renderer) {
         (function loop() {
             window.requestAnimationFrame(loop);
             if (!renderer.paused) {
-                // Translate & Scale
+                // Fire commands
                 _.each(depressed, function (key) {
                     if (_.isFunction(commands[key])) {
                         commands[key].call();

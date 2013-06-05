@@ -39,15 +39,18 @@ define(["underscore", "vec2"], function (_, Vec2) {
     Render.prototype.pan = function (x, y) {
         this.position.x += this.scaled(x);
         this.position.y += this.scaled(y);
+        return this;
     };
 
     Render.prototype.zoom = function (i) {
         this.scale += this.scaled(i);
+        return this;
     };
 
     Render.prototype.move = function (x, y) {
         this.position.x = this.scaled(x);
         this.position.y = this.scaled(x);
+        return this;
     };
 
     Render.prototype.draw = function (state) {
@@ -70,7 +73,7 @@ define(["underscore", "vec2"], function (_, Vec2) {
             _.each(column, function (t, xp) {
                 context.save();
                 context.translate(x(xp, yp, w, h), y(xp, yp, w, h));
-                context.lineWidth = 1 / self.scale;
+                context.lineWidth = self.scaled(1);
                 context.strokeStyle = "#111";
                 context.fillStyle = tileColors[board.terrains[t]];
 
@@ -113,6 +116,7 @@ define(["underscore", "vec2"], function (_, Vec2) {
         });
 
         context.restore();
+        return this;
     };
 
     return Render;

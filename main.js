@@ -28,41 +28,6 @@ function ($, doc, _, Game, Renderer) {
 
         // Keyboard stuff
         var depressed = [];
-
-        var commands = {
-            // Panning
-            87: function () {renderer.position.y += renderer.toScale(-10);}, // W
-            65: function () {renderer.position.x += renderer.toScale(-10);}, // A
-            83: function () {renderer.position.y += renderer.toScale(10);}, // S
-            68: function () {renderer.position.x += renderer.toScale(10);}, // D
-
-            // Zooming
-            81: function () {renderer.scale += 2;}, // Q
-            69: function () {renderer.scale += -2;}, // E
-
-            // Reset
-            32: function () {
-                renderer.position.x = 0;
-                renderer.position.y = 0;
-                renderer.scale = 50;
-            }
-        };
-
-        // Start render loop
-        (function loop() {
-            window.requestAnimationFrame(loop);
-            if (!renderer.paused) {
-                // Fire commands
-                _.each(depressed, function (key) {
-                    if (_.isFunction(commands[key])) {
-                        commands[key].call();
-                    }
-                });
-                renderer.draw(warbanners);
-            }
-        }());
-
-        // Keyboard events
         window.onkeydown = function (e) {
             if (depressed.indexOf(e.which) < 0) {
                 depressed.push(e.which);
@@ -75,5 +40,34 @@ function ($, doc, _, Game, Renderer) {
                 depressed.splice(index, 1);
             }
         };
+
+        var panRate = 10;
+        var zoomRate = 100;
+
+        var commands = {
+            // Panning
+            87: function (c) {c.pan(0, -panRate);}, // W
+            65: function (c) {c.pan(-panRate, 0);}, // A
+            83: function (c) {c.pan(0, panRate);}, // S
+            68: function (c) {c.pan(panRate, 0);}, // D
+            // Zooming
+            81: function (c) {c.zoom(zoomRate);}, // Q
+            69: function (c) {c.zoom(-zoomRate);}, // E
+            32: function (c) {c.move(0, 0); c.scale = 50;}
+        };
+
+        // Start render loop
+        (function loop() {
+            window.requestAnimationFrame(loop);
+            if (!renderer.paused) {
+                // Fire commands
+                _.each(depressed, function (key) {
+                    if (_.isFunction(commands[key])) {
+                        commands[key].call(this, renderer);
+                    }
+                });
+                renderer.draw(warbanners);
+            }
+        }());
     });
 });

@@ -26,15 +26,29 @@ define(["underscore", "vec2"], function (_, Vec2) {
         this.scale = 50;
     };
 
-    Render.prototype.toScale = function (i) {
+    Render.prototype.paused = false;
+
+    Render.prototype.scaled = function (i) {
         return i / this.scale;
     };
 
-    Render.prototype.toPx = function (i) {
+    Render.prototype.unscaled = function (i) {
         return i * this.scale;
     };
 
-    Render.prototype.paused = false;
+    Render.prototype.pan = function (x, y) {
+        this.position.x += this.scaled(x);
+        this.position.y += this.scaled(y);
+    };
+
+    Render.prototype.zoom = function (i) {
+        this.scale += this.scaled(i);
+    };
+
+    Render.prototype.move = function (x, y) {
+        this.position.x = this.scaled(x);
+        this.position.y = this.scaled(x);
+    };
 
     Render.prototype.draw = function (state) {
         var self    = this,

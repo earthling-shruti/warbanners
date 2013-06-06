@@ -17,6 +17,15 @@ require(["jquery", "domReady", "underscore", "game", "render"],
 function ($, doc, _, Game, Renderer) {
     "use strict";
 
+    var requestAnimFrame = (function(){
+        return  window.requestAnimationFrame   ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame    ||
+            function(callback) {
+                window.setTimeout(callback, 1000 / 60);
+            };
+    })();
+
     var $canvas = $("#game");
     var context = $canvas[0].getContext("2d");
     var renderer = new Renderer(context);
@@ -58,7 +67,7 @@ function ($, doc, _, Game, Renderer) {
 
         // Start render loop
         (function loop() {
-            window.requestAnimationFrame(loop);
+            requestAnimFrame(loop);
             if (!renderer.paused) {
                 // Fire commands
                 _.each(depressed, function (key) {

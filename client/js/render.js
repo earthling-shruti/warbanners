@@ -12,7 +12,7 @@ define(["underscore", "vec2"], function (_, Vec2) {
     };
 
     function y(x, y, w, h) {
-        return x % 2 ? h * y + (h / 2) : h * y;
+        return x % 2 ? h * (y + 0.5) : h * y
     }
 
     function x(x, y, w, h) {

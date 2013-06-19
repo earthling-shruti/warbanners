@@ -1,0 +1,39 @@
+CREATE TABLE board (
+	id INTEGER PRIMARY KEY,
+	x INTEGER,
+	y INTEGER,
+	t INTEGER
+);
+
+CREATE TABLE players (
+	id INTEGER PRIMARY KEY,
+	name TEXT,
+	house INTEGER
+);
+
+CREATE TABLE cities (
+	id INTEGER PRIMARY KEY,
+	player_id INTEGER,
+	name TEXT,
+	x INTEGER,
+	y INTEGER
+);
+
+CREATE TABLE armies (
+	id INTEGER PRIMARY KEY,
+	city_id INTEGER,
+	x INTEGER,
+	y INTEGER
+);
+
+CREATE TABLE houses (
+	id INTEGER PRIMARY KEY,
+	name TEXT,
+	player_id INTEGER
+);
+
+CREATE TABLE alliances (
+	id INTEGER PRIMARY KEY,
+	house_id INTEGER,
+	ally_id INTEGER
+);

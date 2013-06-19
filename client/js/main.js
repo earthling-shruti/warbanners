@@ -1,5 +1,5 @@
 require.config({
-    baseUrl: './',
+    baseUrl: './js',
     paths: {
         "jquery": "vendor/jquery.min",
         "domReady": "vendor/domReady",
@@ -29,7 +29,10 @@ function ($, doc, _, Game, Renderer) {
     var $canvas = $("#game");
     var context = $canvas[0].getContext("2d");
     var renderer = new Renderer(context);
-    var request = $.getJSON("example.json");
+    var request = $.ajax({
+        dataType: "json",
+        url: "localhost:5000"
+    });
     request.done(function (data) {
 
         // Deserialize JSON into usable game state object

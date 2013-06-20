@@ -12,6 +12,16 @@ define(["underscore"], function (_) {
         this.tiles = tiles;
     }
 
+    Board.prototype.terrains = {
+        0: "Desert",
+        1: "Plains",
+        2: "Forest",
+        3: "Tundra",
+        4: "Arctic",
+        5: "Rivers",
+        6: "Mountain"
+    };
+
     function House(id, name, allies) {
         this.id = id;
         this.name = name;

@@ -6,4 +6,4 @@ Players build cities and raise armies to conquer or spread their influence acros
 
 Unite under a common banner to protect your empire and conquer larger houses.
 
-![Example Screenshot](https://github.com/samuelcferrell/warbanners/client/screenshot.png "Example Screenshot")
+![Example Screenshot](https://raw.github.com/samuelcferrell/warbanners/master/client/screenshot.png "Example Screenshot")

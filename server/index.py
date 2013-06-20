@@ -16,17 +16,15 @@ def state_handler():
     armies = c.execute("SELECT * FROM armies").fetchall()
     alliances = c.execute("SELECT * FROM alliances").fetchall()
 
-    serialized = json.dumps({
-        "alliances": alliances,
-        "armies": armies,
-        "board": board,
-        "cities": cities,
-        "houses": houses,
-        "players": players,
-    })
+    marshalled = json.dumps({"alliances": alliances,
+                             "armies": armies,
+                             "board": board,
+                             "cities": cities,
+                             "houses": houses,
+                             "players": players})
+    response = flask.make_response(marshalled)
+    response.headers["Access-Control-Allow-Origin"] = "*"
 
-    response = flask.make_response(serialized)
-    response.headers["Content-Type"] = "application/json"
     return response
 
 if __name__ == "__main__":

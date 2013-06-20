@@ -1,5 +1,5 @@
 require.config({
-    baseUrl: './js',
+    baseUrl: './src',
     paths: {
         "jquery": "vendor/jquery.min",
         "domReady": "vendor/domReady",
@@ -29,14 +29,8 @@ function ($, doc, _, Game, Renderer) {
     var $canvas = $("#game");
     var context = $canvas[0].getContext("2d");
     var renderer = new Renderer(context);
-    var request = $.ajax({
-        dataType: "json",
-        url: "localhost:5000"
-    });
+    var request = $.getJSON("http://localhost:5000");
     request.done(function (data) {
-
-        // Deserialize JSON into usable game state object
-        var warbanners = Game.unmarshal(data);
 
         // Keyboard stuff
         var depressed = [];
@@ -68,6 +62,9 @@ function ($, doc, _, Game, Renderer) {
             32: function (c) {c.move(0, 0); c.scale = 50;}
         };
 
+        // Deserialize JSON into usable game state object
+        var warbanners = Game.unmarshal(data);
+
         // Start render loop
         (function loop() {
             requestAnimFrame(loop);
@@ -78,6 +75,7 @@ function ($, doc, _, Game, Renderer) {
                         commands[key].call(this, renderer);
                     }
                 });
+                // Draw state
                 renderer.draw(warbanners);
             }
         }());

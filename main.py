@@ -9,53 +9,38 @@ app = flask.Flask(__name__)
 def state_handler():
     conn = sqlite3.connect("warbanners.db")
     c = conn.cursor()
-    board = c.execute("SELECT * FROM board").fetchall()
-    houses = c.execute("SELECT * FROM houses").fetchall()
-    alliances = c.execute("SELECT * FROM alliances").fetchall()
+
+    board = c.execute("SELECT x, y, t FROM board").fetchall()
+    houses = c.execute("SELECT id, name FROM houses").fetchall()
+    players = c.execute("SELECT id, name, house FROM players").fetchall()
+
+    city_by_player = "SELECT id, x, y FROM cities WHERE player_id = ?"
+    army_by_city = "SELECT id, x, y FROM armies WHERE city_id = ?"
 
     state = {
-        "timestamp": "2012-13-03",
-        "board": [],
-        "houses": [],
-        "players": []
+        "timestamp": "2012-13-03", "board": [], "houses": [], "players": []
     }
 
-    for tile in board:
-        state["board"].append((tile[1], tile[2], tile[3]))
+    for x, y, t in board:
+        state["board"].append((x, y, t))
 
-    for house in houses:
-        state["houses"].append({
-            "id": house[0],
-            "name": house[1]
-        })
+    for house_id, name in houses:
+        state["houses"].append({"id": house_id, "name": name})
 
-    for player in c.execute("SELECT * FROM players").fetchall():
-        player_state = {
-            "id": player[0],
-            "name": player[1],
-            "house": player[2],
-            "cities": []
-        }
-        for city in c.execute("SELECT * FROM cities WHERE player_id = ?", (player[0],)).fetchall():
-            city_state = {
-                "id": city[0],
-                "x": city[1],
-                "y": city[2],
-                "armies": []
-            }
-            for army in c.execute("SELECT * FROM armies WHERE city_id = ?", (city[0],)).fetchall():
-                army_state = {
-                    "id": army[0],
-                    "x": army[1],
-                    "y": army[2]
-                }
-                city_state["armies"].append(army_state)
-            player_state["cities"].append(city_state)
-        state["players"].append(player_state)
+    for player_id, name, house in players:
+        player = {"id": player_id, "name": name, "house": house, "cities": []}
 
-    marshalled = json.dumps(state)
+        for city_id, x, y in c.execute(city_by_player, (player_id,)).fetchall():
+            city = {"id": city_id, "x": x, "y": y, "armies": []}
 
-    response = flask.make_response(marshalled)
+            for army_id, x, y in c.execute(army_by_city, (city_id,)).fetchall():
+                city["armies"].append({"id": army_id, "x": x, "y": y})
+
+            player["cities"].append(city)
+            
+        state["players"].append(player)
+
+    response = flask.make_response(json.dumps(state))
     response.headers["Access-Control-Allow-Origin"] = "*"
     return response
 

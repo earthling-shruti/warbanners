@@ -1,8 +1,9 @@
-import flask
-import sqlite3
+from sqlite3 import dbapi2 as sqlite3
+from flask import Flask, request, abort, session, make_response, url_for,\
+    render_template
 import json
 
-app = flask.Flask(__name__)
+app = Flask(__name__)
 
 
 @app.route("/")
@@ -37,12 +38,33 @@ def state_handler():
                 city["armies"].append({"id": army_id, "x": x, "y": y})
 
             player["cities"].append(city)
-            
+
         state["players"].append(player)
 
-    response = flask.make_response(json.dumps(state))
+    response = make_response(json.dumps(state))
     response.headers["Access-Control-Allow-Origin"] = "*"
     return response
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+  error = None
+  if request.method == 'POST':
+    if 'assertion' not in request.form:
+      return render_template('login.html', error="no assertion")
+      # abort(400)
+
+    data = {'assertion': request.form['assertion'],
+            'audience': 'https://127.0.0.1:5000'}
+    resp = requests.post('https://verifier.login.persona.org/verify',
+                       data=data, verify=True)
+
+    if resp.ok:
+      verification_data = json.loads(resp.content)
+      if verification_data['status'] == okay:
+        session.update({'email': verification_data['email']})
+        return render_template('login.html', error='Logged in')
+  # abort(500)
+  return render_template('login.html', error='invalid username/password')
 
 if __name__ == "__main__":
     app.debug = True

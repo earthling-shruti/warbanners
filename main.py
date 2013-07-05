@@ -7,6 +7,7 @@ import json
 app = Flask(__name__)
 app.secret_key = "nothing unique about this"
 
+
 @app.route("/")
 def state_handler():
     conn = sqlite3.connect("warbanners.db")
@@ -32,10 +33,12 @@ def state_handler():
     for player_id, name, house in players:
         player = {"id": player_id, "name": name, "house": house, "cities": []}
 
-        for city_id, x, y in c.execute(city_by_player, (player_id,)).fetchall():
+        for city_id, x, y in c.execute(city_by_player,
+                                       (player_id,)).fetchall():
             city = {"id": city_id, "x": x, "y": y, "armies": []}
 
-            for army_id, x, y in c.execute(army_by_city, (city_id,)).fetchall():
+            for army_id, x, y in c.execute(army_by_city,
+                                           (city_id,)).fetchall():
                 city["armies"].append({"id": army_id, "x": x, "y": y})
 
             player["cities"].append(city)
@@ -46,32 +49,35 @@ def state_handler():
     response.headers["Access-Control-Allow-Origin"] = "*"
     return response
 
+
 @app.route('/login', methods=['GET'])
 def mozilla_buttons():
-  return render_template('login.html', error='')
+    return render_template('login.html', error='')
+
 
 @app.route('/auth/login', methods=['GET', 'POST'])
 def login():
-  error = None
-  if 'assertion' not in request.form:
-    abort(400)
+    error = None
+    if 'assertion' not in request.form:
+        abort(400)
 
-  data = {'assertion': request.form['assertion'],
-      'audience': 'http://localhost:5000'}
-  resp = requests.post('https://verifier.login.persona.org/verify',
-                       data=data, verify=True)
+    data = {'assertion': request.form['assertion'],
+            'audience': 'http://localhost:5000'}
+    resp = requests.post('https://verifier.login.persona.org/verify',
+                         data=data, verify=True)
 
-  if resp.ok:
-    verification_data = json.loads(resp.content)
-    print verification_data['status']
-    if verification_data['status'] == 'okay':
-      session.update({'email': verification_data['email']})
-      return 'You are logged in'
-  abort(500)
+    if resp.ok:
+        verification_data = json.loads(resp.content)
+        print verification_data['status']
+        if verification_data['status'] == 'okay':
+            session.update({'email': verification_data['email']})
+            return 'You are logged in'
+    abort(500)
+
 
 @app.route('/auth/logout', methods=['POST'])
 def logout():
-  return jsonify(status='success')
+    return jsonify(status='success')
 
 if __name__ == "__main__":
     app.debug = True

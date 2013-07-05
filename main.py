@@ -1,10 +1,11 @@
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, abort, session, make_response, url_for,\
-    render_template
+    render_template, jsonify
+import requests
 import json
 
 app = Flask(__name__)
-
+app.secret_key = "nothing unique about this"
 
 @app.route("/")
 def state_handler():
@@ -45,26 +46,32 @@ def state_handler():
     response.headers["Access-Control-Allow-Origin"] = "*"
     return response
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET'])
+def mozilla_buttons():
+  return render_template('login.html', error='')
+
+@app.route('/auth/login', methods=['GET', 'POST'])
 def login():
   error = None
-  if request.method == 'POST':
-    if 'assertion' not in request.form:
-      return render_template('login.html', error="no assertion")
-      # abort(400)
+  if 'assertion' not in request.form:
+    abort(400)
 
-    data = {'assertion': request.form['assertion'],
-            'audience': 'https://127.0.0.1:5000'}
-    resp = requests.post('https://verifier.login.persona.org/verify',
+  data = {'assertion': request.form['assertion'],
+      'audience': 'http://localhost:5000'}
+  resp = requests.post('https://verifier.login.persona.org/verify',
                        data=data, verify=True)
 
-    if resp.ok:
-      verification_data = json.loads(resp.content)
-      if verification_data['status'] == okay:
-        session.update({'email': verification_data['email']})
-        return render_template('login.html', error='Logged in')
-  # abort(500)
-  return render_template('login.html', error='invalid username/password')
+  if resp.ok:
+    verification_data = json.loads(resp.content)
+    print verification_data['status']
+    if verification_data['status'] == 'okay':
+      session.update({'email': verification_data['email']})
+      return 'You are logged in'
+  abort(500)
+
+@app.route('/auth/logout', methods=['POST'])
+def logout():
+  return jsonify(status='success')
 
 if __name__ == "__main__":
     app.debug = True
